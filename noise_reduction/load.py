@@ -14,7 +14,7 @@ path_y2 = "./data/data_pure.mat"
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-batch_size = 20
+batch_size = 1
 
 # 创建测试集
 init_train, real_train, init_test, real_test = readmat(path_y1, path_y2)
@@ -33,4 +33,20 @@ test_loader = DataLoader(dataset=dataset_test,
 
 model.load_state_dict(torch.load('resnet.ckpt'))
 
+#测试模型部分
+model.eval()
+model_loss = 0
+test_len = len(test_loader)
+with torch.no_grad():
+    for spectrums, labels in test_loader:
+        spectrums = spectrums.to(device)
+        labels = labels.to(device)
+        outputs = model(spectrums)
+        criteria = torch.nn.L1Loss()
+        loss = criteria(outputs, labels)
+        model_loss += loss.item()
+
+avg_loss = model_loss/test_len
+print(test_len)
+print(avg_loss)
 

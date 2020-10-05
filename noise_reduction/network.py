@@ -90,7 +90,7 @@ class ResNet(nn.Module):
         out = self.layer2(out)
         out = self.layer3(out)
         out = self.layer4(out)
-        out = self.layer5(out)
+        #out = self.layer5(out)
         out = self.bn2(out)
         out = self.conv2(out)
 
@@ -98,6 +98,6 @@ class ResNet(nn.Module):
         return out
 
 # 实例化网络
-model = ResNet(ResidualBlock, 4).to(device)
+model = ResNet(ResidualBlock, 3).to(device)
 
 ## 网络部分的结束
