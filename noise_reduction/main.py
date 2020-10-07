@@ -3,6 +3,8 @@ import torch
 from noise_reduction.readmat import readmat
 from noise_reduction.network import model, criteria
 import matplotlib.pyplot as plt
+from noise_reduction.early_stopping import EarlyStopping
+import numpy as np
 '''
 用于读取光谱文件进行训练
 主要网络结构为残差网络
@@ -24,19 +26,21 @@ test/generate.mat: 单条的训练后光谱
 '''
 
 # 读取mat文件
-path_y1 = "./data/data_impure_1.mat"
-path_y2 = "./data/data_pure_1.mat"
+path_y1 = "./data/data_impure.mat"
+path_y2 = "./data/data_pure.mat"
 
 # 选择cpu或者gpu
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 # 保存迭代的loss
-total_loss = []
+# total_loss = []
 
 # 迭代参数设置
 num_epochs = 20
 batch_size = 10
 learning_rate = 0.003
+patience = 7
+curr_lr = learning_rate
 
 # 读取数据集并进行处理
 
@@ -58,65 +62,107 @@ train_loader = DataLoader(dataset=dataset,
 test_loader = DataLoader(dataset=dataset_test,
                           batch_size=batch_size,
                           shuffle=True)
+# 定义优化器
+optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
 # 更新学习率函数
 def update_lr(optimizer, lr):
     for param_group in optimizer.param_groups:
         param_group['lr'] = lr
 
-# 定义优化器
-optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+# 通过早停法训练模型
+def train_model(model, batch_size, patience, n_epochs, curr_lr):
 
-# 训练网络
-total_step = len(train_loader)
-curr_lr = learning_rate
+    # 储存训练损失
+    train_losses = []
+    # 储存评价损失
+    valid_losses = []
+    # 追踪每阶段的平均训练损失
+    avg_train_losses = []
+    # 追踪每阶段的平均评价损失
+    avg_valid_losses = []
+    # 计算长度
+    total_step = len(train_loader)
+    # 初始化early_stop对象
+    early_stopping = EarlyStopping(patience=patience, verbose=True)
+    # 储存每次的训练损失
+    total_losses = []
 
-# 通过epoch循环得到参数
-for epoch in range(num_epochs):
-    for i, (spectrums, labels) in enumerate(train_loader):
-        spectrums = spectrums.to(device)
-        labels = labels.to(device)
+    # 开始训练
+    for epoch in range(num_epochs):
+        model.train()
+        for i, (spectrums, labels) in enumerate(train_loader):
+            spectrums = spectrums.to(device)
+            labels = labels.to(device)
 
-        # 输入数据到网络中得到输出
-        outputs = model(spectrums)
+            # 输入数据到网络中得到输出
+            outputs = model(spectrums)
 
-        #计算损失
-        loss = criteria(outputs, labels)
+            # 计算损失
+            loss = criteria(outputs, labels)
 
-        # 反向传播计算参数
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
+            # 反向传播计算参数
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+            train_losses.append(loss.item())
+            total_losses.append(loss.item())
 
-        total_loss.append(loss.item())
-        if (i + 1) % 10 == 0:
-            print("Epoch [{}/{}], Step [{}/{}] Loss: {:.4f}"
-                  .format(epoch + 1, num_epochs, i + 1, total_step, loss.item()))
+            # 输出每次batch的损失
+            if (i + 1) % 10 == 0:
+                    print("Epoch [{}/{}], Step [{}/{}] Loss: {:.4f}"
+                          .format(epoch + 1, num_epochs, i + 1, total_step, loss.item()))
+
+        # 评价模型
+        model.eval()
+        for spectrums, labels in test_loader:
+            spectrums = spectrums.to(device)
+            labels = labels.to(device)
+            output = model(spectrums)
+            loss = criteria(output, labels)
+            valid_losses.append(loss.item())
+
+        # 计算各阶段平均损失
+        train_loss = np.average(train_losses)
+        valid_loss = np.average(valid_losses)
+        avg_train_losses.append(train_loss)
+        avg_valid_losses.append(valid_loss)
+
+        epoch_len = len(str(n_epochs))
+
+        print_msg = (f'[{epoch+1:>{epoch_len}}/{n_epochs:>{epoch_len}}] ' +
+                     f'train_loss: {train_loss:.5f} ' +
+                     f'valid_loss: {valid_loss:.5f}')
+
+        print(print_msg)
+
+        # 为下一个epoch清除缓存
+        train_losses = []
+        valid_losses = []
+
+        # early_stop需要验证丢失来检查它是否衰减，如果有的话，它将为当前模型设置一个检查点
+        early_stopping(valid_loss, model)
+
+        if early_stopping.early_stop:
+            print("Early stopping")
+            break
 
     # 减少学习率
-    if (epoch + 1) % 20 == 0:
-        curr_lr /= 1.5
-        update_lr(optimizer, curr_lr)
+        if (epoch + 1) % 20 == 0:
+            curr_lr /= 1.5
+            update_lr(optimizer, curr_lr)
 
-plt.plot(total_loss)
-plt.xlabel('Steps')
-plt.ylabel('Loss')
-plt.show()
+    # 载入上一次的存档点
+    model.load_state_dict(torch.load('resnet.ckpt'))
 
-# 对网络进行评价
-model.eval()
-model_loss = 0
-test_len = len(test_loader)
-with torch.no_grad():
-    for spectrums, labels in test_loader:
-        spectrums = spectrums.to(device)
-        labels = labels.to(device)
-        outputs = model(spectrums)
-        loss = criteria(outputs, labels)
-        model_loss += loss.item()
+    # 画出损失函数的图像
+    plt.plot(total_losses)
+    plt.xlabel('Steps')
+    plt.ylabel('Loss')
+    plt.show()
 
-avg_loss = model_loss/test_len
-print(avg_loss)
+    return model, avg_train_losses, avg_valid_losses
 
-# 保存本次网络的结构参数
-torch.save(model.state_dict(), 'resnet.ckpt')
+if __name__=="__main__":
+    # 开始训练
+    model, avg_train_losses, avg_valid_losses = train_model(model, batch_size, patience, num_epochs, curr_lr)

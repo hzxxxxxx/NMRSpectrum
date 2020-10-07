@@ -99,7 +99,7 @@ class ResNet(nn.Module):
         return out
 
 # 实例化网络
-model = ResNet(ResidualBlock, 3).to(device)
+model = ResNet(ResidualBlock, 2).to(device)
 
 ## 网络部分的结束
 
