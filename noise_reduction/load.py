@@ -1,8 +1,7 @@
 from torch.utils.data import Dataset, DataLoader,TensorDataset
 import torch
 from noise_reduction.readmat import readmat
-from noise_reduction.network import model
-
+from noise_reduction.network import model, criteria
 
 '''
 读取已经训练好的网络参数进行测试
@@ -42,7 +41,6 @@ with torch.no_grad():
         spectrums = spectrums.to(device)
         labels = labels.to(device)
         outputs = model(spectrums)
-        criteria = torch.nn.L1Loss()
         loss = criteria(outputs, labels)
         model_loss += loss.item()
 

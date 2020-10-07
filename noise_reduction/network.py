@@ -57,7 +57,7 @@ class ResNet(nn.Module):
         self.conv = conv16(1, self.channels)
         self.conv2 = conv16(self.channels, 1)
         self.bn = nn.BatchNorm1d(self.channels)
-        self.bn2 = nn.BatchNorm1d(self.channels)
+        self.bn2 = nn.BatchNorm1d(1)
         self.relu = nn.LeakyReLU(inplace=True)
         self.layer1 = self.make_layer(block, self.channels, layers)
         self.layer2 = self.make_layer(block, self.channels, layers)
@@ -91,8 +91,9 @@ class ResNet(nn.Module):
         out = self.layer3(out)
         out = self.layer4(out)
         #out = self.layer5(out)
-        out = self.bn2(out)
         out = self.conv2(out)
+        out = self.bn2(out)
+        out = self.relu(out)
 
 
         return out
@@ -101,3 +102,12 @@ class ResNet(nn.Module):
 model = ResNet(ResidualBlock, 3).to(device)
 
 ## 网络部分的结束
+
+# 设定loss函数
+def MYLOSS(y_pred, y_true):
+    a = torch.log10(torch.square(y_true - y_pred))
+    b = torch.log10(torch.square(y_true))
+    return a / b
+
+#定义损失函数
+criteria = torch.nn.MSELoss()

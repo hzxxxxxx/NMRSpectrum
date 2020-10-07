@@ -1,8 +1,7 @@
 from torch.utils.data import Dataset, DataLoader,TensorDataset
 import torch
 from noise_reduction.readmat import readmat
-from noise_reduction.network import model
-import numpy as np
+from noise_reduction.network import model, criteria
 import matplotlib.pyplot as plt
 '''
 用于读取光谱文件进行训练
@@ -10,8 +9,10 @@ import matplotlib.pyplot as plt
 
 各文件使用说明
 H_gen: 生成模拟光谱
+One_of_H_gen: 生成单条模拟光谱 输出为data/testpure.mat以及data/testimpure.mat
 main: 定义以及训练网络
 readmat:  读取数据文件
+network: 储存网络结构 输出为model
 load: 通过读取'resnet.ckpt'中的参数重构网络
 resnet.ckpt: 训练好的网络中的参数
 
@@ -23,8 +24,8 @@ test/generate.mat: 单条的训练后光谱
 '''
 
 # 读取mat文件
-path_y1 = "./data/data_impure.mat"
-path_y2 = "./data/data_pure.mat"
+path_y1 = "./data/data_impure_1.mat"
+path_y2 = "./data/data_pure_1.mat"
 
 # 选择cpu或者gpu
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -35,7 +36,7 @@ total_loss = []
 # 迭代参数设置
 num_epochs = 20
 batch_size = 10
-learning_rate = 0.001
+learning_rate = 0.003
 
 # 读取数据集并进行处理
 
@@ -63,16 +64,8 @@ def update_lr(optimizer, lr):
     for param_group in optimizer.param_groups:
         param_group['lr'] = lr
 
-# 设定loss函数
-def NMSE(y_pred, y_true):
-    a = torch.sqrt(torch.sum(torch.square(y_true - y_pred)))
-    b = torch.sqrt(torch.sum(torch.square(y_true)))
-    return a / b
-
 # 定义优化器
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
-#定义损失函数
-criteria = torch.nn.L1Loss()
 
 # 训练网络
 total_step = len(train_loader)
@@ -108,7 +101,6 @@ for epoch in range(num_epochs):
 plt.plot(total_loss)
 plt.xlabel('Steps')
 plt.ylabel('Loss')
-plt.ylim((0, 1))
 plt.show()
 
 # 对网络进行评价
