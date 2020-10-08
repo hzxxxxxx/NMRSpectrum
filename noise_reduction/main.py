@@ -26,8 +26,8 @@ test/generate.mat: 单条的训练后光谱
 '''
 
 # 读取mat文件
-path_y1 = "./data/data_impure.mat"
-path_y2 = "./data/data_pure.mat"
+path_y1 = "./data/data_impure_1.mat"
+path_y2 = "./data/data_pure_1.mat"
 
 # 选择cpu或者gpu
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -36,10 +36,10 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 # total_loss = []
 
 # 迭代参数设置
-num_epochs = 20
+num_epochs = 100
 batch_size = 10
 learning_rate = 0.003
-patience = 7
+patience = 5
 curr_lr = learning_rate
 
 # 读取数据集并进行处理
@@ -113,39 +113,40 @@ def train_model(model, batch_size, patience, n_epochs, curr_lr):
                     print("Epoch [{}/{}], Step [{}/{}] Loss: {:.4f}"
                           .format(epoch + 1, num_epochs, i + 1, total_step, loss.item()))
 
-        # 评价模型
-        model.eval()
-        for spectrums, labels in test_loader:
-            spectrums = spectrums.to(device)
-            labels = labels.to(device)
-            output = model(spectrums)
-            loss = criteria(output, labels)
-            valid_losses.append(loss.item())
+        if epoch+1 % 10 == 0:
+            # 评价模型
+            model.eval()
+            for spectrums, labels in test_loader:
+                spectrums = spectrums.to(device)
+                labels = labels.to(device)
+                output = model(spectrums)
+                loss = criteria(output, labels)
+                valid_losses.append(loss.item())
 
-        # 计算各阶段平均损失
-        train_loss = np.average(train_losses)
-        valid_loss = np.average(valid_losses)
-        avg_train_losses.append(train_loss)
-        avg_valid_losses.append(valid_loss)
+            # 计算各阶段平均损失
+            train_loss = np.average(train_losses)
+            valid_loss = np.average(valid_losses)
+            avg_train_losses.append(train_loss)
+            avg_valid_losses.append(valid_loss)
 
-        epoch_len = len(str(n_epochs))
+            epoch_len = len(str(n_epochs))
 
-        print_msg = (f'[{epoch+1:>{epoch_len}}/{n_epochs:>{epoch_len}}] ' +
-                     f'train_loss: {train_loss:.5f} ' +
-                     f'valid_loss: {valid_loss:.5f}')
+            print_msg = (f'[{epoch+1:>{epoch_len}}/{n_epochs:>{epoch_len}}] ' +
+                         f'train_loss: {train_loss:.5f} ' +
+                         f'valid_loss: {valid_loss:.5f}')
 
-        print(print_msg)
+            print(print_msg)
 
-        # 为下一个epoch清除缓存
-        train_losses = []
-        valid_losses = []
+            # 为下一个epoch清除缓存
+            train_losses = []
+            valid_losses = []
 
-        # early_stop需要验证丢失来检查它是否衰减，如果有的话，它将为当前模型设置一个检查点
-        early_stopping(valid_loss, model)
+            # early_stop需要验证丢失来检查它是否衰减，如果有的话，它将为当前模型设置一个检查点
+            early_stopping(valid_loss, model)
 
-        if early_stopping.early_stop:
-            print("Early stopping")
-            break
+            if early_stopping.early_stop:
+                print("Early stopping")
+                break
 
     # 减少学习率
         if (epoch + 1) % 20 == 0:

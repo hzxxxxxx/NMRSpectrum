@@ -1,11 +1,11 @@
-# MriSpectrum
+# NMRSpectrum
 一款关于对MRI光谱进行处理的程序
 
 ## NoiseReduction
 
 用于读取光谱文件进行光谱的去噪训练
 
-主要网络结构为残差网络
+主要网络结构为残差网络NMR
 
 #### 各文件使用说明
 
