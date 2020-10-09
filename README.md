@@ -1,7 +1,7 @@
 # NMRSpectrum
-一款关于对MRI光谱进行处理的程序
+一款关于对NMR光谱进行处理的程序
 
-## NoiseReduction
+## NoiseReductionNMR
 
 用于读取光谱文件进行光谱的去噪训练
 

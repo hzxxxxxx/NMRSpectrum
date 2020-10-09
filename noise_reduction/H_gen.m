@@ -63,13 +63,13 @@ for a=1:1000
  
  spec_X=[spec_X;impure];  
  spec_Y=[spec_Y;pure];
- c1=c1+1;
- if rem(c1, 500)
+ if rem(c1, 500) == 0
     total_spec_X=[total_spec_X;spec_X]; 
     total_spec_Y=[total_spec_Y;spec_Y]; 
     spec_X=[];
     spec_Y=[];
  end
+c1=c1+1;
 end
 
 data=struct('data_x',total_spec_X);

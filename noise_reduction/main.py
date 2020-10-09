@@ -5,6 +5,7 @@ from noise_reduction.network import model, criteria
 import matplotlib.pyplot as plt
 from noise_reduction.early_stopping import EarlyStopping
 import numpy as np
+
 '''
 用于读取光谱文件进行训练
 主要网络结构为残差网络
@@ -32,11 +33,8 @@ path_y2 = "./data/data_pure_1.mat"
 # 选择cpu或者gpu
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-# 保存迭代的loss
-# total_loss = []
-
 # 迭代参数设置
-num_epochs = 100
+num_epochs = 150
 batch_size = 10
 learning_rate = 0.003
 patience = 5
@@ -113,7 +111,7 @@ def train_model(model, batch_size, patience, n_epochs, curr_lr):
                     print("Epoch [{}/{}], Step [{}/{}] Loss: {:.4f}"
                           .format(epoch + 1, num_epochs, i + 1, total_step, loss.item()))
 
-        if epoch+1 % 10 == 0:
+        if (epoch+1) % 10 == 0:
             # 评价模型
             model.eval()
             for spectrums, labels in test_loader:
