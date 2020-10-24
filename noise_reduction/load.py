@@ -1,6 +1,6 @@
-from torch.utils.data import Dataset, DataLoader,TensorDataset
+from torch.utils.data import DataLoader,TensorDataset
 import torch
-from noise_reduction.readmat import readmat
+from noise_reduction.indeedpack.readmat import readmat
 from noise_reduction.network import model, criteria
 
 '''

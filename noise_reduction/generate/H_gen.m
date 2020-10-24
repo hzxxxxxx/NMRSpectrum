@@ -73,6 +73,6 @@ c1=c1+1;
 end
 
 data=struct('data_x',total_spec_X);
-save('data/data_pure.mat','data');
+save('../data/data_pure.mat','data');
 data=struct('data_y',total_spec_Y);
-save('data/data_impure.mat','data');
+save('../data/data_impure.mat','data');

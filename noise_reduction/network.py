@@ -111,3 +111,4 @@ def MYLOSS(y_pred, y_true):
 
 #定义损失函数
 criteria = torch.nn.MSELoss()
+#criteria = torch.nn.L1Loss()

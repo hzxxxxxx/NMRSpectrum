@@ -1,9 +1,9 @@
-from torch.utils.data import Dataset, DataLoader,TensorDataset
+from torch.utils.data import DataLoader,TensorDataset
 import torch
-from noise_reduction.readmat import readmat
+from noise_reduction.indeedpack.readmat import readmat
 from noise_reduction.network import model, criteria
 import matplotlib.pyplot as plt
-from noise_reduction.early_stopping import EarlyStopping
+from noise_reduction.indeedpack.early_stopping import EarlyStopping
 import numpy as np
 
 '''
@@ -152,7 +152,7 @@ def train_model(model, batch_size, patience, n_epochs, curr_lr):
             update_lr(optimizer, curr_lr)
 
     # 载入上一次的存档点
-    model.load_state_dict(torch.load('resnet.ckpt'))
+    model.load_state_dict(torch.load('noise_reduction/wirehouse/model/resnet.ckpt'))
 
     # 画出损失函数的图像
     plt.plot(total_losses)
