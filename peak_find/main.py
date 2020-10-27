@@ -1,9 +1,9 @@
 from torch.utils.data import DataLoader,TensorDataset
 import torch
-from peak_find.peak_find1.indeedpack.readmat import readmat
-from peak_find.peak_find1.network import model, criteria
+from peak_find.indeedpack.readmat import readmat
+from peak_find.network import model, criteria
 import matplotlib.pyplot as plt
-from peak_find.peak_find1.indeedpack.early_stopping import EarlyStopping
+from peak_find.indeedpack.early_stopping import EarlyStopping
 import numpy as np
 
 # 读取mat文件
@@ -132,7 +132,7 @@ def train_model(model, batch_size, patience, n_epochs, curr_lr):
             update_lr(optimizer, curr_lr)
 
     # 载入上一次的存档点
-    model.load_state_dict(torch.load('F:\\project\\NMR\\peak_find\\resnet.ckpt'))
+    model.load_state_dict(torch.load('./wirehouse/model/resnet.ckpt'))
 
     # 画出损失函数的图像
     plt.plot(total_losses)

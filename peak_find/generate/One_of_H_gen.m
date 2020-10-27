@@ -45,9 +45,9 @@ figure();
 plot(freq,impure);%×öÆµÆ×Í¼
 axis([-5,ss-5,-0.5,1]);
 
-data=struct('peak',label);
-save('../test/peak.mat','data');
-data=struct('data_x',pure);
-save('../test/pure.mat','data');
-data=struct('data_y',impure);
-save('../test/impure.mat','data');
+data_peak=struct('peak',label);
+save('../test/peak.mat');
+data_pure=struct('pure',pure);
+save('../test/pure.mat');
+data_impure=struct('impure',impure);
+save('../test/impure.mat');

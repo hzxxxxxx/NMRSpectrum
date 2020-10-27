@@ -1,7 +1,7 @@
 import torch
 import scipy.io as sio
 import numpy as np
-from peak_find.peak_find1.network import model
+from peak_find.network import model
 
 '''
 读取单条光谱并且输出在网络中训练好的输出的mat文件
@@ -13,14 +13,12 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 # 读取测试的mat文件
 x = sio.loadmat('pure.mat')
-x = x['data_x']
+x = x['pure']
 x = np.expand_dims(x, 1).astype('float32')
 x = torch.from_numpy(x).to(device)
-y = np.expand_dims(y, 1)
-print(x.shape,y.shape)
 
 # 读取网络参数
-model.load_state_dict(torch.load('../resnet.ckpt'))
+model.load_state_dict(torch.load('../wirehouse/model/resnet.ckpt'))
 # 把参数放入网络
 X = model(x)
 # 降维
