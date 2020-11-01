@@ -1,7 +1,7 @@
 from torch.utils.data import DataLoader,TensorDataset
 import torch
-from noise_reduction.indeedpack.readmat import readmat
-from noise_reduction.network import model, criteria
+from peak_find.indeedpack.readmat import readmat
+from peak_find.network import model, criteria
 
 '''
 读取已经训练好的网络参数进行测试
@@ -30,7 +30,7 @@ test_loader = DataLoader(dataset=dataset_test,
                           batch_size=batch_size,
                           shuffle=True)
 
-model.load_state_dict(torch.load('resnet_l2.ckpt'))
+model.load_state_dict(torch.load('resnet.ckpt'))
 
 #测试模型部分
 model.eval()

@@ -50,4 +50,4 @@
 # print(avg_loss)
 #
 # # 保存本次网络的结构参数
-# torch.save(model.state_dict(), 'resnet.ckpt')
+# torch.save(model.state_dict(), 'resnet_l2.ckpt')

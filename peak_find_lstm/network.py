@@ -31,12 +31,15 @@ class ResidualBlock(nn.Module):
     #向前传播结构
     def forward(self, x):
         residual = x
-        out = self.bn(x)
+        out = self.conv3(x)
+        out = self.bn(out)
         out = self.relu(out)
         out = self.conv1(out)
         out = self.bn(out)
         out = self.relu(out)
         out = self.conv2(out)
+        out = self.bn(out)
+        out = self.conv4(out)
         out = self.bn(out)
         if self.downsample:
             residual = self.downsample(x)
@@ -96,20 +99,16 @@ class ResNet(nn.Module):
         return out
 
 # 实例化网络
-model = ResNet(ResidualBlock, 4).to(device)
+model = ResNet(ResidualBlock, 2).to(device)
 
 ## 网络部分的结束
 
 # 设定loss函数
-class My_loss(nn.Module):
-    def __init__(self):
-        super().__init__()
-
-    def forward(self, x, y):
-        return torch.mean(torch.pow(torch.abs(x - y)+0.5, 10))
-
+def MYLOSS(y_pred, y_true):
+    a = torch.log10(torch.square(y_true - y_pred))
+    b = torch.log10(torch.square(y_true))
+    return a / b
 
 #定义损失函数
-#criteria = My_loss()
 criteria = torch.nn.MSELoss()
 #criteria = torch.nn.L1Loss()

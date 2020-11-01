@@ -10,13 +10,13 @@ impure=impure/max(max(impure));
 generate=generate/max(max(generate));
 figure()
 plot(a)
-axis([0,8096,-0.5,1.5]); 
+axis([0,2025,-0.5,1.5]); 
 figure()
 plot(b)
-axis([0,8096,-0.5,1.5]); 
+axis([0,2025,-0.5,1.5]); 
 figure()
 plot(c)
-axis([0,8096,-0.5,1.5]); 
+axis([0,2025,-0.5,1.5]); 
 snr_a=1/std(pure(1:350));
 snr_b=1/std(impure(1:350));
 snr_c=1/std(generate(1:350));

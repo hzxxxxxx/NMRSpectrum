@@ -14,7 +14,7 @@ def readmat(init_data_file, real_data_file):
     data_peak = b['data']
 
     X = data_pure[0, 0]['data_x']
-    Y = data_peak[0, 0]['peak_area']
+    Y = data_peak[0, 0]['peak']
 
     num_raws = len(X[0])
     num_lines = len(X)

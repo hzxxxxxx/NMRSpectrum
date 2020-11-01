@@ -16,8 +16,8 @@ One_of_H_gen: 生成单条模拟光谱 输出为data/testpure.mat以及data/test
 main: 定义以及训练网络
 readmat:  读取数据文件
 network: 储存网络结构 输出为model
-load: 通过读取'resnet.ckpt'中的参数重构网络
-resnet.ckpt: 训练好的网络中的参数
+load: 通过读取'resnet_l2.ckpt'中的参数重构网络
+resnet_l2.ckpt: 训练好的网络中的参数
 
 test/test.py: 用于测试单条光谱效果
 test/test.m: 用于画出.py输出的图
@@ -152,7 +152,7 @@ def train_model(model, batch_size, patience, n_epochs, curr_lr):
             update_lr(optimizer, curr_lr)
 
     # 载入上一次的存档点
-    model.load_state_dict(torch.load('noise_reduction/wirehouse/model/resnet.ckpt'))
+    model.load_state_dict(torch.load('noise_reduction/wirehouse/model/resnet_l2.ckpt'))
 
     # 画出损失函数的图像
     plt.plot(total_losses)

@@ -1,7 +1,7 @@
 from torch.utils.data import DataLoader,TensorDataset
 import torch
-from noise_reduction.indeedpack.readmat import readmat
-from noise_reduction.network import model, criteria
+from peak_find_res.indeedpack.readmat import readmat
+from peak_find_res.network import model, criteria
 
 '''
 读取已经训练好的网络参数进行测试

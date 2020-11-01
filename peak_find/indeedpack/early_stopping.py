@@ -7,7 +7,7 @@ from github https://github.com/Bjarten/early-stopping-pytorch
 class EarlyStopping:
     """Early stops the training if validation loss doesn't improve after a given patience.
     早停法会在损失不再下降的时候提前停止模型的训练"""
-    def __init__(self, patience=7, verbose=False, delta=0, path='../wirehouse/model/resnet.ckpt', trace_func=print):
+    def __init__(self, patience=7, verbose=False, delta=0, path='F:\\project\\NMR\\peak_find\\wirehouse\\model\\resnet_l2.ckpt', trace_func=print):
         """
         Args:
             patience (int): How long to wait after last time validation loss improved.
