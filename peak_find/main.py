@@ -15,7 +15,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 # 迭代参数设置
 num_epochs = 10
-batch_size = 5
+batch_size = 1
 learning_rate = 0.003
 patience = 2
 curr_lr = learning_rate
@@ -48,6 +48,20 @@ def update_lr(optimizer, lr):
     for param_group in optimizer.param_groups:
         param_group['lr'] = lr
 
+def find_area(spe):
+    area = torch.gt(spe, 0.005)
+    flag = 0
+    index = []
+    for j in range(len(spe[0, 0])):
+        if (area[0, 0, j] == True) & (flag == 0):
+            l = j
+            flag = 1
+        if (area[0, 0, j] == False) & (flag == 1):
+            r = j
+            flag = 0
+            index.append((l, r))
+    print(index)
+
 # 通过早停法训练模型
 def train_model(model, batch_size, patience, n_epochs, curr_lr):
 
@@ -72,74 +86,7 @@ def train_model(model, batch_size, patience, n_epochs, curr_lr):
         for i, (spectrums, labels) in enumerate(train_loader):
             spectrums = spectrums.to(device)
             labels = labels.to(device)
-
-            # 输入数据到网络中得到输出
-            outputs = model(spectrums)
-
-            # 计算损失
-            loss = criteria(outputs, labels)
-
-            # 反向传播计算参数
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
-            train_losses.append(loss.item())
-            total_losses.append(loss.item())
-
-            # 输出每次batch的损失
-            if (i + 1) % 10 == 0:
-                    print("Epoch [{}/{}], Step [{}/{}] Loss: {:.4f}"
-                          .format(epoch + 1, num_epochs, i + 1, total_step, loss.item()))
-
-        # if (epoch+1) % 10 == 0:
-        #     # 评价模型
-        #     model.eval()
-        #     for spectrums, labels in test_loader:
-        #         spectrums = spectrums.to(device)
-        #         labels = labels.to(device)
-        #         output = model(spectrums)
-        #         loss = criteria(output, labels)
-        #         valid_losses.append(loss.item())
-        #
-        #     # 计算各阶段平均损失
-        #     train_loss = np.average(train_losses)
-        #     valid_loss = np.average(valid_losses)
-        #     avg_train_losses.append(train_loss)
-        #     avg_valid_losses.append(valid_loss)
-        #
-        #     epoch_len = len(str(n_epochs))
-        #
-        #     print_msg = (f'[{epoch+1:>{epoch_len}}/{n_epochs:>{epoch_len}}] ' +
-        #                  f'train_loss: {train_loss:.5f} ' +
-        #                  f'valid_loss: {valid_loss:.5f}')
-        #
-        #     print(print_msg)
-        #
-        #     # 为下一个epoch清除缓存
-        #     train_losses = []
-        #     valid_losses = []
-        #
-        #     # early_stop需要验证丢失来检查它是否衰减，如果有的话，它将为当前模型设置一个检查点
-        #     early_stopping(valid_loss, model)
-        #
-        #     if early_stopping.early_stop:
-        #         print("Early stopping")
-        #         break
-
-    # 减少学习率
-        if (epoch + 1) % 20 == 0:
-            curr_lr /= 1.5
-            update_lr(optimizer, curr_lr)
-
-    # 载入上一次的存档点
-    # model.load_state_dict(torch.load('F:\\project\\NMR\\peak_find\\wirehouse\\model\\resnet_l2.ckpt'))
-    torch.save(model.state_dict(), 'F:\\project\\NMR\\peak_find\\wirehouse\\model\\resnet.ckpt')
-    # 画出损失函数的图像
-    plt.plot(total_losses)
-    plt.xlabel('Steps')
-    plt.ylabel('Loss')
-    plt.show()
-
+            find_area(spectrums)
     return model, avg_train_losses, avg_valid_losses
 
 if __name__=="__main__":

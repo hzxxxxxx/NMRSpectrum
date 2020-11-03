@@ -9,7 +9,7 @@ AI= ceil(4*rand(1));
 np = 8096;                        %采样点数
 t = 0:1/sw:(np-1)/sw;
 freq=[(ss/(2*np))-5:ss/np:ss-5];
-signal = zeros(1,length(t));
+
 tt = ones(1, length(t));
 spec_X=[];
 spec_Y=[];
@@ -20,7 +20,8 @@ total_spec_Y=[];
 total_spec_L=[];
 total_spec_P=[];
 
-for a=1:1000
+for a=1:100
+signal = zeros(1,length(t));
 peak = zeros(1,length(t));    %用来标记峰的范围
 wnum = ceil(3 + rand(1)*10);  %峰的个数
 Jnum = randi(1, 3, wnum);     %J的个数为1~3
@@ -52,12 +53,12 @@ pure = pure_real1/max(max(pure_real1));
 signalnoise=awgn(signal,100,'measured');%加噪
 noise(1, :) = signalnoise; 
 impure = real((fft(noise, np)))/max(max(real((fft(noise, np)))));
- 
+
  spec_X=[spec_X;impure];  
  spec_Y=[spec_Y;pure];
  spec_L=[spec_L;label];
  spec_P=[spec_P;peak];
- if rem(c1, 500) == 0
+ if rem(c1, 100) == 0
     total_spec_X=[total_spec_X;spec_X]; 
     total_spec_Y=[total_spec_Y;spec_Y]; 
     total_spec_L=[total_spec_L;spec_L]; 

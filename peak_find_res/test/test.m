@@ -1,4 +1,4 @@
-clear all,clc
+clear all,clc; close all;
 load pure.mat;
 b=pure;
 load impure.mat;
@@ -9,14 +9,24 @@ pure=pure/max(max(pure));
 impure=impure/max(max(impure));
 generate=generate/max(max(generate));
 figure()
-plot(a)
-axis([0,2025,-0.5,1.5]); 
-figure()
+subplot(3,1,1)
 plot(b)
-axis([0,2025,-0.5,1.5]); 
-figure()
+xlabel('位置')
+ylabel('强度')
+title('纯净谱')
+axis([0,8096,-0.5,1.5]); 
+subplot(3,1,2)
+plot(a)
+xlabel('位置')
+ylabel('强度')
+title('含噪谱')
+axis([0,8096,-0.5,1.5]); 
+subplot(3,1,3)
 plot(c)
-axis([0,2025,-0.5,1.5]); 
+xlabel('位置')
+ylabel('出现峰的可能性强度')
+title('峰提取位置')
+axis([0,8096,-0.5,1.5]); 
 snr_a=1/std(pure(1:350));
 snr_b=1/std(impure(1:350));
 snr_c=1/std(generate(1:350));

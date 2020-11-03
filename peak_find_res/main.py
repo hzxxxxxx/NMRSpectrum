@@ -7,17 +7,17 @@ from peak_find_res.indeedpack.early_stopping import EarlyStopping
 import numpy as np
 
 # 读取mat文件
-path_y1 = "./test/data_pure.mat"
+path_y1 = "./test/data_impure.mat"
 path_y2 = "./test/data_peak.mat"
 
 # 选择cpu或者gpu
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 # 迭代参数设置
-num_epochs = 100
+num_epochs = 30
 batch_size = 2
 learning_rate = 0.003
-patience = 5
+patience = 7
 curr_lr = learning_rate
 
 # 读取数据集并进行处理
@@ -65,6 +65,8 @@ def train_model(model, batch_size, patience, n_epochs, curr_lr):
     early_stopping = EarlyStopping(patience=patience, verbose=True)
     # 储存每次的训练损失
     total_losses = []
+    #储存每次检测的loss
+    total_test_losses=[]
 
     # 开始训练
     for epoch in range(num_epochs):
@@ -91,7 +93,7 @@ def train_model(model, batch_size, patience, n_epochs, curr_lr):
                     print("Epoch [{}/{}], Step [{}/{}] Loss: {:.4f}"
                           .format(epoch + 1, num_epochs, i + 1, total_step, loss.item()))
 
-        if (epoch+1) % 10 == 0:
+        if (epoch+1) % 1 == 0:
             # 评价模型
             model.eval()
             for spectrums, labels in test_loader:
@@ -106,6 +108,7 @@ def train_model(model, batch_size, patience, n_epochs, curr_lr):
             valid_loss = np.average(valid_losses)
             avg_train_losses.append(train_loss)
             avg_valid_losses.append(valid_loss)
+            total_test_losses.append(valid_loss)
 
             epoch_len = len(str(n_epochs))
 
@@ -131,12 +134,12 @@ def train_model(model, batch_size, patience, n_epochs, curr_lr):
             curr_lr /= 1.5
             update_lr(optimizer, curr_lr)
 
-    # 载入上一次的存档点
-    model.load_state_dict(torch.load('F:\\project\\NMR\\peak_find_res\\wirehouse\\model\\resnet_l2.ckpt'))
-
     # 画出损失函数的图像
     plt.plot(total_losses)
-    plt.xlabel('Steps')
+
+    # 画出测试损失函数的图像
+    plt.plot(total_test_losses)
+    plt.xlabel('num_epoch')
     plt.ylabel('Loss')
     plt.show()
 

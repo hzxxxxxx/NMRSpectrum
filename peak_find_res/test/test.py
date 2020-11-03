@@ -18,7 +18,7 @@ x = np.expand_dims(x, 1).astype('float32')
 x = torch.from_numpy(x).to(device)
 
 # 读取网络参数
-model.load_state_dict(torch.load('../wirehouse/model/resnet_l2.ckpt'))
+model.load_state_dict(torch.load('../wirehouse/model/resnet.ckpt'))
 # 把参数放入网络
 X = model(x)
 # 降维
