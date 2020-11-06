@@ -18,12 +18,14 @@ x = np.expand_dims(x, 1).astype('float32')
 x = torch.from_numpy(x).to(device)
 
 # 读取网络参数
-model.load_state_dict(torch.load('../wirehouse/model/resnet.ckpt'))
+model.load_state_dict(torch.load('../wirehouse/model/resnetl5n2.ckpt'))
 # 把参数放入网络
 X = model(x)
 # 降维
 X = torch.squeeze(X, axis=1).cpu()
 print(X.shape)
 X = X.detach().numpy().astype('float64')
+X[X > 0.5] = 1
+X[X < 0.5] = 0
 # 结果输出为mat文件
 sio.savemat('generate.mat',mdict={'generate':X,})

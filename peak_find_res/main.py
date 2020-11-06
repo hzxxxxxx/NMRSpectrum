@@ -7,8 +7,8 @@ from peak_find_res.indeedpack.early_stopping import EarlyStopping
 import numpy as np
 
 # 读取mat文件
-path_y1 = "./test/data_impure.mat"
-path_y2 = "./test/data_peak.mat"
+path_y1 = "./data/data_impure.mat"
+path_y2 = "./data/data_peak.mat"
 
 # 选择cpu或者gpu
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -113,8 +113,8 @@ def train_model(model, batch_size, patience, n_epochs, curr_lr):
             epoch_len = len(str(n_epochs))
 
             print_msg = (f'[{epoch+1:>{epoch_len}}/{n_epochs:>{epoch_len}}] ' +
-                         f'train_loss: {train_loss:.5f} ' +
-                         f'valid_loss: {valid_loss:.5f}')
+                         f'train_loss: {train_loss:.10f} ' +
+                         f'valid_loss: {valid_loss:.10f}')
 
             print(print_msg)
 
@@ -135,10 +135,10 @@ def train_model(model, batch_size, patience, n_epochs, curr_lr):
             update_lr(optimizer, curr_lr)
 
     # 画出损失函数的图像
-    plt.plot(total_losses)
+    plt.plot(avg_train_losses,color='black',label='trainloss')
 
     # 画出测试损失函数的图像
-    plt.plot(total_test_losses)
+    plt.plot(avg_valid_losses,color='blue',label='testloss')
     plt.xlabel('num_epoch')
     plt.ylabel('Loss')
     plt.show()
